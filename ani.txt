@@ -1,4 +1,0 @@
-ani.rb:8:in `block in <main>': undefined local variable or method `word' for main:Object (NameError)
-Did you mean?  words
-	from ani.rb:7:in `each'
-	from ani.rb:7:in `<main>'
