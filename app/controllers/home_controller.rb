@@ -6,7 +6,8 @@ class HomeController < ApplicationController
     @response = {}
     @content = params[:content]
     @name = params[:name]
-    @input = InputFile.new(@name,@content)
+    @ex = params[:extension]
+    @input = InputFile.new(@name,@content,@ex)
     @input.createFile
     @input.execute
     @response["response"] = @input.respond
