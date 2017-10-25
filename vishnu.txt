@@ -1,0 +1,3 @@
+vishnu.rb:14:in `<main>': undefined method `first_name1' for #<Vishnu:0x00561cd7a92758 @first_name="Vishnu", @last_name=nil> (NoMethodError)
+Did you mean?  first_name
+               first_name=
