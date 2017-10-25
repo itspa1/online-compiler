@@ -1,29 +1,19 @@
-<<<<<<< HEAD
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+* Ruby version ~> 2.4.1
 
-Things you may want to cover:
+* System dependencies ~> Requires Rails V5.0.4s
 
-* Ruby version
+* Configuration  ~> Does not require any extra configs
 
-* System dependencies
+* Database creation ~> No db's created as of now
 
-* Configuration
+* How to run the test suite ~> Run it as you desire...raise an issue if error is found.
 
-* Database creation
+* Services ~> This application for now runs Ruby scripts on the server and gives the result in real time.
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
 =======
 # online-compiler
-A rails application which is an online compile
+A rails application which is an Online Compiler
+
 >>>>>>> d61b5fb58e95f77a4420b6949aa5202911ac995e
