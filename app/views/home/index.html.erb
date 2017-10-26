@@ -1,81 +1,83 @@
-  <div class="row">
-    <div class="col-md-6">
-      <h2>Compiler</h2>
-      <input type="text" name="name" value="" placeholder="Enter Name" id="name"><br><br>
-      <div class="form-inline">
-      <label for="compiler">Enter Code Here </label>
-      <select class="form-control-sm col-lg-3" name="language" id="sel">
-        <option value="ruby">Ruby</option>
-        <option value="javascript">JavaScript</option>
-      </select>
-    </div>
-      <div id="text" class="card card-outline-primary mb-3">
+<div class="row">
+  <div class="col-md-6">
+    <h2>Compiler</h2>
+    <div class="form-inline">
+    <select class="form-control-sm col-lg-3" name="language" id="sel">
+      <option value="ruby">Ruby</option>
+      <option value="javascript">JavaScript</option>
+    </select><br><br>
+  </div>
+    <div id="text" class="card card-outline-primary mb-3">
 
-      </div>
-      <button type="button" name="execute" id="load">Execute</button>
     </div>
-
-    <div class="col-md-6" id="para">
-      <h2>Output</h2>
-      <div id="result">
-
-      </div>
-    </div>
+    <input type="text" name="name" value="" placeholder="Enter Name" id="name" class="form-control col-md-4 bottom-margin">
+    <button type="button" name="execute" id="load" class="btn btn-primary">Execute</button>
   </div>
 
+  <div class="col-md-6" id="para">
+    <h2>Output</h2>
+    <div id="result" class="card card-outline-primary mb-3 top-margin">
+
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 lang = "ruby";
 var editor = CodeMirror(document.getElementById('text'),{
-  value: "#type code here",
-  mode: "ruby",
-  lineNumbers: true,
-  keyMap: "sublime",
-  theme: "monokai",
-	tabSize: 2,
-	indentUnit: 2,
-	smartIndent: true,
-	indentWithTabs: true,
-	tabIndex: 2
+value: "#type code here",
+mode: "ruby",
+lineNumbers: true,
+keyMap: "sublime",
+theme: "monokai",
+tabSize: 2,
+indentUnit: 2,
+smartIndent: true,
+indentWithTabs: true,
+tabIndex: 2
 });
-  $("#load").click(function(){
-      var sent = editor.getValue();
-      var eName = $("#name").val();
-      if(sent == "" || eName == ""){
-        alert('empty');
-      }else{
-      // console.log(content);
-      $.ajax({
-        url: "/home/input",
-        type: "get",
-        data: {
-          name: eName,
-          content: sent,
-          extension: lang
-        },
-        success: function(response){
-          $("#result").empty();
-          var paragraphs = response.response.split("\n");
-          paragraphs.forEach(function(n){
-            document.getElementById("result").innerHTML += "<p>" + n + "</p>";
-          });
-        }
-      });
-    }
-  });
+var result = CodeMirror(document.getElementById('result'),{
+value: "Your result appears here",
+mode: "text",
+keyMap: "sublime",
+theme: "monokai",
+tabSize: 2,
+tabIndex: 2,
+readOnly: "nocursor"
+});
+$("#load").click(function(){
+    var sent = editor.getValue();
+    var eName = $("#name").val();
+    if(sent == "" || eName == ""){
+      alert('empty');
+    }else{
+    // console.log(content);
+    $.ajax({
+      url: "/home/input",
+      type: "get",
+      data: {
+        name: eName,
+        content: sent,
+        extension: lang
+      },
+      success: function(response){
+        result.setOption("value", response["response"]);
+      }
+    });
+  }
+});
 
-  $("#sel").change(function(){
-    var js = "//type code here";
-    var ruby = "#type code here";
-    lang = this.value;
-    switch (this.value) {
-      case "javascript":
-        editor.setOption("value", js);
-        break;
-      default:
-        editor.setOption("value",ruby);
-    }
-    editor.setOption("mode",lang);
-  });
-
+$("#sel").change(function(){
+  var js = "//type code here";
+  var ruby = "#type code here";
+  lang = this.value;
+  switch (this.value) {
+    case "javascript":
+      editor.setOption("value", js);
+      break;
+    default:
+      editor.setOption("value",ruby);
+  }
+  editor.setOption("mode",lang);
+});
 
 </script>
