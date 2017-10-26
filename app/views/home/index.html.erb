@@ -5,6 +5,7 @@
     <select class="form-control-sm col-lg-3" name="language" id="sel">
       <option value="ruby">Ruby</option>
       <option value="javascript">JavaScript</option>
+      <option value="python">Python3</option>
     </select><br><br>
   </div>
     <div id="text" class="card card-outline-primary mb-3">
@@ -69,10 +70,14 @@ $("#load").click(function(){
 $("#sel").change(function(){
   var js = "//type code here";
   var ruby = "#type code here";
+  var pythoncon = "#type code here";
   lang = this.value;
   switch (this.value) {
     case "javascript":
       editor.setOption("value", js);
+      break;
+    case "python":
+      editor.setOption("value", pythoncon);
       break;
     default:
       editor.setOption("value",ruby);

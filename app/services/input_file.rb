@@ -3,7 +3,8 @@ class InputFile
 
   @@lang = {
     "ruby" => "rb",
-    "javascript" => "js"
+    "javascript" => "js",
+    "python" => "py"
   }
   def initialize(name,content,language)
     self.name = name
@@ -23,6 +24,10 @@ class InputFile
       console.error((err && err.stack) ? err.stack : err);
       });"
       somefile.puts self.content
+    when "py"
+    somefile.puts "import sys"
+    somefile.puts "sys.stdout = sys.stderr = open(\"#{self.name}.txt\",\"w\")"
+    somefile.puts self.content
     else
     somefile.puts "fname = File.open(\"#{self.name}.txt\",\"w\")"
     somefile.puts "$stderr = fname"
@@ -38,6 +43,9 @@ class InputFile
     when "js"
       cmd = "node #{self.name}.js"
       `#{cmd}`
+    when "py"
+    cmd = "python3 #{self.name}.py"
+    `#{cmd}`
     else
     cmd = "ruby #{self.name}.rb"
     `#{cmd}`
