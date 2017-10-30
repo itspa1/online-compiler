@@ -8,7 +8,7 @@
       <option value="python">Python3</option>
     </select><br><br>
   </div>
-    <div id="text" class="card card-outline-primary mb-3">
+    <div id="text" class="card card-outline mb-3">
 
     </div>
     <input type="text" name="name" value="" placeholder="Enter Name" id="name" class="form-control col-md-4 bottom-margin">
@@ -17,7 +17,7 @@
 
   <div class="col-md-6" id="para">
     <h2>Output</h2>
-    <div id="result" class="card card-outline-primary mb-3 top-margin">
+    <div id="result" class="card card-outline mb-3 top-margin">
 
     </div>
   </div>
@@ -29,7 +29,7 @@ value: "#type code here",
 mode: "ruby",
 lineNumbers: true,
 keyMap: "sublime",
-theme: "monokai",
+theme: "eclipse",
 tabSize: 2,
 indentUnit: 2,
 smartIndent: true,
@@ -40,7 +40,7 @@ var result = CodeMirror(document.getElementById('result'),{
 value: "Your result appears here",
 mode: "text",
 keyMap: "sublime",
-theme: "monokai",
+theme: "eclipse",
 tabSize: 2,
 tabIndex: 2,
 readOnly: "nocursor"
@@ -51,7 +51,6 @@ $("#load").click(function(){
     if(sent == "" || eName == ""){
       alert('empty');
     }else{
-    // console.log(content);
     $.ajax({
       url: "/home/input",
       type: "get",
