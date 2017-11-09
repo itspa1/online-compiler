@@ -5,8 +5,8 @@ class HomeController < ApplicationController
   def input
     @response = {}
     @content = params[:content]
-    @name = params[:name]
     @ex = params[:extension]
+    @name = SecureRandom.hex(2)
     @input = InputFile.new(@name,@content,@ex)
     @input.createFile
     @input.execute
@@ -14,6 +14,7 @@ class HomeController < ApplicationController
     respond_to do |format|
       format.json { render json: @response}
     end
+    FileDeleteJob.perform_later @name
   end
 
 end
