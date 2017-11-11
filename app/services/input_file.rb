@@ -5,7 +5,8 @@ class InputFile
   @@lang = {
     "ruby" => "rb",
     "javascript" => "js",
-    "python" => "py"
+    "python" => "py",
+    "text/x-csrc" => "c"
   }
   def initialize(name,content,language)
     self.name = name
@@ -17,6 +18,8 @@ class InputFile
     FileUtils::mkdir_p("tmp/#{self.name}")
     somefile = File.open("tmp/#{self.name}/#{self.name}.#{self.extension}","w")
     case self.extension
+    when "c"
+      somefile.puts self.content
     when "js"
       somefile.puts "var fs = require('fs'); var access = fs.createWriteStream('tmp/#{self.name}/#{self.name}.txt'); access.truncate; process.stdout.write = process.stderr.write = access.write.bind(access); process.on('uncaughtException', function(err) { console.error((err && err.stack) ? err.stack : err); });"
       somefile.puts self.content
@@ -38,6 +41,13 @@ class InputFile
     begin
       Timeout::timeout(5) do
       case self.extension
+      when "c"
+        cmd = "(gcc tmp/#{self.name}/#{self.name}.c -o tmp/#{self.name}/#{self.name}  2> tmp/#{self.name}/#{self.name}.txt)&echo $! > tmp/#{self.name}/#{self.name}_new.txt"
+        `#{cmd}`
+        if File.zero?("tmp/#{self.name}/#{self.name}.txt")
+          run = "tmp/#{self.name}/./#{self.name} > tmp/#{self.name}/#{self.name}.txt"
+          `#{run}`
+        end
       when "js"
         cmd = "node tmp/#{self.name}/#{self.name}.js & echo $! > tmp/#{self.name}/#{self.name}_new.txt"
         `#{cmd}`
@@ -50,11 +60,16 @@ class InputFile
       end
     end
   rescue Timeout::Error
-    f = File.open("tmp/#{self.name}/#{self.name}.txt","w")
     s = File.read("tmp/#{self.name}/#{self.name}_new.txt")
-    id = s.to_i
+    case self.extension
+      when "c"
+        id = s.to_i - 1
+      else
+      id = s.to_i
+    end
     com = "kill #{id}"
     `#{com}`
+    f = File.open("tmp/#{self.name}/#{self.name}.txt","w")
     f.puts "Your Program did not yield any output or ran for too long (>5000ms). Process Killed."
     f.close
   end
@@ -65,7 +80,7 @@ class InputFile
     case self.extension
       when "py"
         if val.split("line ").size > 1
-          leftpar = "code."
+          leftpar = "code.py"
           ex = val.split("line ")[1].split("")[0].to_i - 2
           val = val.split("line ")[1].split("")
           val.shift
