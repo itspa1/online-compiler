@@ -29,6 +29,7 @@ group :development do
   gem 'capistrano-rails', '~> 1.3'
   gem 'capistrano-rbenv', '~> 2.1'
   gem 'capistrano-passenger'
+  gem 'capistrano-puma'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
