@@ -3,7 +3,6 @@
     <h2>Compiler</h2>
     <div class="form-inline">
     <select class="form-control-sm col-lg-3" name="language" id="sel">
-      <option value="text/x-csrc">C</option>
       <option value="ruby">Ruby</option>
       <option value="javascript">JavaScript</option>
       <option value="python">Python3</option>
@@ -23,14 +22,13 @@
 <script type="text/javascript">
   $(document).ready(function(){
     //this is compiler code
-    var lang = "text/x-csrc";
+    var lang = "ruby";
     var js = jcode = "//type js code here";
     var pythoncon = pcode = "#type python code here";
     var rubycon = rcode = "#type ruby code here";
-    var c = ccode = "//type C code here";
     var editor = CodeMirror(document.getElementById('text'),{
-      value: "//type C code here",
-      mode: "text/x-csrc",
+      value: "#type ruby code here",
+      mode: "ruby",
       lineNumbers: true,
       keyMap: "sublime",
       theme: "monokai",
@@ -53,11 +51,6 @@
       $("#sel").on('change',function(){
         lang = this.value;
         switch (lang) {
-          case "ruby":
-            //editor.setOption("value",js);
-            editor.setOption("value",rcode);
-            result.setOption("value","Your result appears here");
-            break;
           case "python":
             //editor.setOption("value",js);
             editor.setOption("value", pcode);
@@ -69,7 +62,7 @@
             break;
           default:
             //editor.setOption("value",js);
-            editor.setOption("value",ccode);
+            editor.setOption("value",rcode);
             result.setOption("value","Your result appears here");
             break;
         }
@@ -78,7 +71,7 @@
 
       $("#load").click(function(){
           var sent = editor.getValue();
-          if(sent == js || sent == pythoncon || sent == rubycon || sent == c){
+          if(sent == js || sent == pythoncon || sent == rubycon){
             swal(
               'Ooops...!!!',
               "Looks like you din't type in any code.",
@@ -86,9 +79,6 @@
             )
           }else{
             switch (lang) {
-              case "ruby":
-                rcode = sent;
-                break;
               case "python":
                 pcode = sent;
                 break;
@@ -96,7 +86,7 @@
                 jcode = sent;
                 break;
               default:
-                ccode = sent;
+                rcode = sent;
                 break;
             }
           $.ajax({

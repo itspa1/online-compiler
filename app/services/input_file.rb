@@ -1,102 +1,66 @@
-require 'timeout'
 class InputFile
-  attr_accessor :name,:content,:extension
+  attr_accessor :name,:content,:extension,:executor
 
-  @@lang = {
+  @@extension = {
     "ruby" => "rb",
     "javascript" => "js",
     "python" => "py",
-    "text/x-csrc" => "c"
   }
+
+  @@executor = {
+    "ruby" => "ruby",
+    "javascript" => "node",
+    "python" => "python3"
+  }
+
   def initialize(name,content,language)
     self.name = name
     self.content = content
-    self.extension = @@lang[language]
+    self.extension = @@extension[language]
+    self.executor = @@executor[language]
   end
 
   def createFile
     FileUtils::mkdir_p("tmp/#{self.name}")
     somefile = File.open("tmp/#{self.name}/#{self.name}.#{self.extension}","w")
-    case self.extension
-    when "c"
-      somefile.puts self.content
-    when "js"
-      somefile.puts "var fs = require('fs'); var access = fs.createWriteStream('tmp/#{self.name}/#{self.name}.txt'); access.truncate; process.stdout.write = process.stderr.write = access.write.bind(access); process.on('uncaughtException', function(err) { console.error((err && err.stack) ? err.stack : err); });"
-      somefile.puts self.content
-    when "py"
-      somefile.puts "import sys"
-      somefile.puts "sys.stdout = sys.stderr = open(\"tmp/#{self.name}/#{self.name}.txt\",\"w\")"
-      somefile.puts self.content
-    else
-      somefile.puts "fname = File.open(\"tmp/#{self.name}/#{self.name}.txt\",\"w\")"
-      somefile.puts "$stderr = fname"
-      somefile.puts "$stdout = fname"
-      somefile.puts self.content
-      somefile.puts "fname.close"
-    end
+    somefile.puts self.content
     somefile.close
+    exec_file = File.open("tmp/#{self.name}/#{self.name}.sh","w")
+    exec_file.puts "#!/bin/bash"
+    exec_file.puts "(time timeout -k 5 5 #{self.executor} tmp/#{self.name}/#{self.name}.#{self.extension} &> tmp/#{self.name}/#{self.name}_out.txt) &> tmp/#{self.name}/#{self.name}_time.txt"
+    exec_file.puts "echo $? &> tmp/#{self.name}/#{self.name}_code.txt"
+    exec_file.close
+    FileUtils::chmod("+x","tmp/#{self.name}/#{self.name}.sh")
   end
 
   def execute
-    begin
-      Timeout::timeout(5) do
-      case self.extension
-      when "c"
-        cmd = "(gcc tmp/#{self.name}/#{self.name}.c -o tmp/#{self.name}/#{self.name}  2> tmp/#{self.name}/#{self.name}.txt)&echo $! > tmp/#{self.name}/#{self.name}_new.txt"
-        `#{cmd}`
-        if File.zero?("tmp/#{self.name}/#{self.name}.txt")
-          run = "tmp/#{self.name}/./#{self.name} > tmp/#{self.name}/#{self.name}.txt"
-          `#{run}`
-        end
-      when "js"
-        cmd = "node tmp/#{self.name}/#{self.name}.js & echo $! > tmp/#{self.name}/#{self.name}_new.txt"
-        `#{cmd}`
-      when "py"
-        cmd = "python3 tmp/#{self.name}/#{self.name}.py & echo $! > tmp/#{self.name}/#{self.name}_new.txt"
-        `#{cmd}`
-      else
-      cmd = "ruby tmp/#{self.name}/#{self.name}.rb & echo $! > tmp/#{self.name}/#{self.name}_new.txt"
-      `#{cmd}`
-      end
-    end
-  rescue Timeout::Error
-    s = File.read("tmp/#{self.name}/#{self.name}_new.txt")
-    case self.extension
-      when "c"
-        id = s.to_i - 1
-      else
-      id = s.to_i
-    end
-    com = "kill #{id}"
-    `#{com}`
-    f = File.open("tmp/#{self.name}/#{self.name}.txt","w")
-    f.puts "Your Program did not yield any output or ran for too long (>5000ms). Process Killed."
-    f.close
-  end
+    cmd = "./tmp/#{self.name}/#{self.name}.sh"
+    `#{cmd}`
+    # sleep(0.3)
   end
 
   def respond
-    val = File.read("tmp/#{self.name}/#{self.name}.txt")
-    case self.extension
-      when "py"
-        if val.split("line ").size > 1
-          leftpar = "code.py"
-          ex = val.split("line ")[1].split("")[0].to_i - 2
-          val = val.split("line ")[1].split("")
-          val.shift
-          rightpar = val.unshift(ex).join("")
-          val = leftpar + "line " + rightpar
-        end
-      else
-        if val.split("rb:").size > 1
-          leftpar = "code."
-          ex = val.split("rb:")[1].split("")[0].to_i - 3
-          val = val.split("rb:")[1].split("")
-          val.shift
-          rightpar = val.unshift(ex).join("")
-          val = leftpar + "rb:" + rightpar
+    val = File.read("tmp/#{self.name}/#{self.name}_out.txt")
+    time = File.read("tmp/#{self.name}/#{self.name}_time.txt")
+    time = time.split("\n")[2]
+    time.gsub!("user","Time Elapsed")
+    code = File.read("tmp/#{self.name}/#{self.name}_code.txt")
+    if code.to_i != 124
+      begin
+        case self.extension
+          when "py"
+            val.gsub!("tmp/#{self.name}/#{self.name}","File")
+          when "js"
+            val.gsub!("#{Dir.pwd}/tmp/#{self.name}/#{self.name}","File")
+          else
+            val.gsub!("tmp/#{self.name}/#{self.name}","File")
+          end
       end
+      val += time
+    else
+      val = "You program did not yield any output or ran more than 5 seconds (>=5000ms).\nProcess was killed."
     end
     return val
   end
+
 end
